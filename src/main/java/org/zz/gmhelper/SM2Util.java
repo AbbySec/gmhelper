@@ -23,6 +23,7 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.gm.SM2P256V1Curve;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -73,6 +74,32 @@ public class SM2Util extends GMBaseUtil {
     public static AsymmetricCipherKeyPair generateKeyPairParameter() {
         SecureRandom random = new SecureRandom();
         return BCECUtil.generateKeyPairParameter(DOMAIN_PARAMS, random);
+    }
+
+    /**
+     * 生成ECC密钥对，格式为：
+     * String[0] - 私钥hex
+     * String[1] - 公钥hex
+     *
+     * @return ECC密钥对16进制字符串格式
+     * @Author 大白菜
+     */
+    public static String[] generateKeyPairByHexString() throws NoSuchProviderException, NoSuchAlgorithmException {
+        String[] keyPairHexString = new String[3];
+        AsymmetricCipherKeyPair keyPair = generateKeyPairParameter();
+        ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
+        ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
+        // byte[] priKeyBytes = priKey.getD().toByteArray();
+        // byte[] pubKeyBytes = pubKey.getQ().getEncoded(false);
+        String priKeyHex = ByteUtils.toHexString(priKey.getD().toByteArray());
+        String pubKeyHex = ByteUtils.toHexString(pubKey.getQ().getEncoded(false));
+        // 对33位私钥的处理，移除头部的00
+        if (priKeyHex.length() == 66) {
+            priKeyHex = priKeyHex.substring(2);
+        }
+        keyPairHexString[0] = priKeyHex;
+        keyPairHexString[1] = pubKeyHex;
+        return keyPairHexString;
     }
 
     /**

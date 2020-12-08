@@ -198,6 +198,15 @@ public class BCECUtil {
         return new ECPublicKeyParameters(curve.decodePoint(encodedPubKey), domainParameters);
     }
 
+    /**
+     * @param pubKeyHex 十六进制形式的公钥完整分量，如果是SM2算法，应该是130位，开头为0x04
+     * @return
+     * @Author 大白菜
+     */
+    public static ECPublicKeyParameters createECPublicKeyParameters(String pubKeyHex) {
+        return new ECPublicKeyParameters(SM2Util.CURVE.decodePoint(ByteUtils.fromHexString(pubKeyHex)), SM2Util.DOMAIN_PARAMS);
+    }
+
     public static ECPrivateKeyParameters convertPrivateKeyToParameters(BCECPrivateKey ecPriKey) {
         ECParameterSpec parameterSpec = ecPriKey.getParameters();
         ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
